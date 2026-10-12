@@ -29,19 +29,21 @@ public class Person {
     )
     private String email;
 
+/*
     @Column(nullable = false)
     private Date created;
+*/
 
 
     public Person() {
     }
 
-    public Person(Long id, String firstName, String lastName, String email,  Date created) {
+    public Person(Long id, String firstName, String lastName, String email/*, Date created*/) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.created = created;
+//        this.created = new Date();
     }
 
 
@@ -77,13 +79,13 @@ public class Person {
         this.email = email;
     }
 
-    public Date getCreated() {
+/*    public Date getCreated() {
         return created;
     }
 
     public void setCreated(Date created) {
         this.created = created;
-    }
+    }*/
 
     @Override
     public String toString() {
@@ -92,7 +94,6 @@ public class Person {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", created=" + created +
                 '}';
     }
 }
