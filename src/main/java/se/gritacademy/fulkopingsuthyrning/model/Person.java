@@ -24,7 +24,7 @@ public class Person {
 
     @Column(unique = true, nullable = false)
     @Pattern(
-            regexp = "/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/",
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "Make sure you've entered a correct email address"
     )
     private String email;
