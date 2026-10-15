@@ -1,6 +1,8 @@
 package se.gritacademy.fulkopingsuthyrning.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,33 +17,43 @@ import java.util.List;
 public class PersonController {
 
     private PersonService personService;
-     //senare: implementera model assembler (för hateoas)
+    private PersonModelAssembler personModelAssembler;
 
-    public PersonController(PersonService personService) {
+    public PersonController(PersonService personService, PersonModelAssembler personModelAssembler) {
         this.personService = personService;
+        this.personModelAssembler = personModelAssembler;
     }
 
     @GetMapping("")
-    public List<Person> list() {
-        return personService.listAll();
+    public CollectionModel<EntityModel<Person>> list() {
+        return personModelAssembler.toCollectionModel(personService.listAll());
     }
 
     @GetMapping("/{id}")
-    public Person get(@PathVariable Long id) {
-        return personService.getById(id);
+    public ResponseEntity<EntityModel<Person>> get(@PathVariable Long id) {
+        return new ResponseEntity<>(
+                personModelAssembler.toModel(personService.getById(id)),
+                HttpStatus.OK
+        );
     }
 
     @PostMapping("")
     public ResponseEntity<?> post(@Valid @RequestBody Person person) {
         personService.create(person);
-        return new ResponseEntity<>(person, HttpStatus.CREATED);
+        return new ResponseEntity<>(
+                personModelAssembler.toModel(person),
+                HttpStatus.CREATED
+        );
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> put(@Valid @RequestBody Person person,
                                  @PathVariable Long id) {
         personService.update(person, id);
-        return ResponseEntity.ok(person);
+        return new ResponseEntity<>(
+                personModelAssembler.toModel(person),
+                HttpStatus.OK
+        );
     }
 
     @DeleteMapping("/{id}")
