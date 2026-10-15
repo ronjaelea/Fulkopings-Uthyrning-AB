@@ -11,7 +11,7 @@ import se.gritacademy.fulkopingsuthyrning.service.PersonService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/persons")
 public class PersonController {
 
     private PersonService personService;
@@ -21,30 +21,31 @@ public class PersonController {
         this.personService = personService;
     }
 
-    @GetMapping("/persons")
+    @GetMapping("")
     public List<Person> list() {
         return personService.listAll();
     }
 
-    @GetMapping("/persons/{id}")
+    @GetMapping("/{id}")
     public Person get(@PathVariable Long id) {
         return personService.getById(id);
     }
 
-    @PostMapping("/persons")
+    @PostMapping("")
     public ResponseEntity<?> post(@Valid @RequestBody Person person) {
-        personService.save(person);
+        personService.create(person);
         return new ResponseEntity<>(person, HttpStatus.CREATED);
     }
 
-    @PutMapping("/persons/{id}")
-    public ResponseEntity<?> put(@Valid @RequestBody Person person, @PathVariable Long id) {
-        personService.save(person);
-        return new ResponseEntity<>(person, HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<?> put(@Valid @RequestBody Person person,
+                                 @PathVariable Long id) {
+        personService.update(person, id);
+        return ResponseEntity.ok(person);
     }
 
-    @DeleteMapping("/persons/{id}")
-    @Validated
+    @DeleteMapping("/{id}")
+    @Validated // ??
     public ResponseEntity<?> delete(@PathVariable Long id) {
         personService.delete(id);
         return ResponseEntity.noContent().build();

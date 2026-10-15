@@ -1,5 +1,7 @@
 package se.gritacademy.fulkopingsuthyrning.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.gritacademy.fulkopingsuthyrning.model.Person;
@@ -25,7 +27,16 @@ public class PersonService {
         return personRepository.findById(id).get();
     }
 
-    public void save(Person person) {
+    public void create(Person person) {
+        personRepository.save(person);
+    }
+
+    // även om id finns med i body skrivs det över av id från path var
+    public void update(Person person, Long id) {
+        if (personRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException("Person with id " + id + " was not found");
+        }
+        person.setId(id);
         personRepository.save(person);
     }
 

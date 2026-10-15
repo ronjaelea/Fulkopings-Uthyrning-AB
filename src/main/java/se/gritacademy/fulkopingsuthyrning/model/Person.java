@@ -15,11 +15,11 @@ public class Person {
     private Long id = 0L;
 
     @Column(nullable = false)
-    @NotBlank(message = "Firstname cannot be blank")
+    @NotBlank(message = "First name cannot be blank")
     private String firstName;
 
     @Column(nullable = false)
-    @NotBlank(message = "Lastname cannot be blank")
+    @NotBlank(message = "Last name cannot be blank")
     private String lastName;
 
     @Column(unique = true, nullable = false)
