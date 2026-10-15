@@ -24,6 +24,9 @@ public class PersonService {
     }
 
     public Person getById(Long id) {
+        if (personRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException("Person with id " + id + " was not found");
+        }
         return personRepository.findById(id).get();
     }
 
@@ -41,6 +44,9 @@ public class PersonService {
     }
 
     public void delete(Long id) {
+        if (personRepository.findById(id).isEmpty()) {
+            throw new EntityNotFoundException("Person with id " + id + " was not found");
+        }
         personRepository.deleteById(id);
     }
 }
