@@ -10,38 +10,36 @@ import org.springframework.web.bind.annotation.*;
 import se.gritacademy.fulkopingsuthyrning.model.Person;
 import se.gritacademy.fulkopingsuthyrning.service.PersonService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    private PersonService personService;
-    private PersonModelAssembler personModelAssembler;
+    private PersonService service;
+    private PersonModelAssembler assembler;
 
-    public PersonController(PersonService personService, PersonModelAssembler personModelAssembler) {
-        this.personService = personService;
-        this.personModelAssembler = personModelAssembler;
+    public PersonController(PersonService service, PersonModelAssembler assembler) {
+        this.service = service;
+        this.assembler = assembler;
     }
 
     @GetMapping("")
     public CollectionModel<EntityModel<Person>> list() {
-        return personModelAssembler.toCollectionModel(personService.listAll());
+        return assembler.toCollectionModel(service.listAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<Person>> get(@PathVariable Long id) {
         return new ResponseEntity<>(
-                personModelAssembler.toModel(personService.getById(id)),
+                assembler.toModel(service.findById(id)),
                 HttpStatus.OK
         );
     }
 
     @PostMapping("")
     public ResponseEntity<?> post(@Valid @RequestBody Person person) {
-        personService.create(person);
+        service.create(person);
         return new ResponseEntity<>(
-                personModelAssembler.toModel(person),
+                assembler.toModel(person),
                 HttpStatus.CREATED
         );
     }
@@ -49,9 +47,9 @@ public class PersonController {
     @PutMapping("/{id}")
     public ResponseEntity<?> put(@Valid @RequestBody Person person,
                                  @PathVariable Long id) {
-        personService.update(person, id);
+        service.update(person, id);
         return new ResponseEntity<>(
-                personModelAssembler.toModel(person),
+                assembler.toModel(person),
                 HttpStatus.OK
         );
     }
@@ -59,7 +57,7 @@ public class PersonController {
     @DeleteMapping("/{id}")
     @Validated // ??
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        personService.delete(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
