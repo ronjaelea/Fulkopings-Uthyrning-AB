@@ -1,7 +1,6 @@
 package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "products")
@@ -18,20 +17,16 @@ public class Product {
     private String category;
 
     @Column(nullable = false)
-    private String description;
-
-    @Column(nullable = false)
-    private Integer price;
+    private Integer pricePerDay;
 
     public Product() {
     }
 
-    public Product(Long id, String name, String category, String description, Integer price) {
+    public Product(Long id, String name, String category, Integer pricePerDay) {
         this.id = id;
         this.name = name;
         this.category = category;
-        this.description = description;
-        this.price = price;
+        this.pricePerDay = pricePerDay;
     }
 
     public Long getId() {
@@ -58,20 +53,12 @@ public class Product {
         this.category = category;
     }
 
-    public String getDescription() {
-        return description;
+    public Integer getPricePerDay() {
+        return pricePerDay;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
+    public void setPricePerDay(Integer price) {
+        this.pricePerDay = price;
     }
 
     @Override
@@ -80,8 +67,7 @@ public class Product {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", category='" + category + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
+                ", price=" + pricePerDay +
                 '}';
     }
 }
