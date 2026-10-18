@@ -1,10 +1,10 @@
 package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-
-import java.util.Date;
+import org.hibernate.validator.constraints.UniqueElements;
 
 @Entity
 @Table(name = "persons")
@@ -34,18 +34,15 @@ public class Person {
     private Date created;
 */
 
-
     public Person() {
     }
 
-    public Person(Long id, String firstName, String lastName, String email/*, Date created*/) {
+    public Person(Long id, String firstName, String lastName, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-//        this.created = new Date();
     }
-
 
     public Long getId() {
         return id;
@@ -78,14 +75,6 @@ public class Person {
     public void setEmail(String email) {
         this.email = email;
     }
-
-/*    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }*/
 
     @Override
     public String toString() {

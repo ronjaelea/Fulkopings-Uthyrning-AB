@@ -2,7 +2,7 @@ package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Table(name = "rentals")
@@ -13,18 +13,22 @@ public class Rental {
     private Long id = 0L;
 
     @Column(nullable = false)
-    private Date rentalDate;
+    private Instant rentalDate;
 
     @Column
-    private Date returned;
+    private Instant returnedDate;
+
+    @Column
+    private Integer totalCost;
 
     public Rental() {
     }
 
-    public Rental(Long id, Date rentalDate, Date returned) {
+    public Rental(Long id, Instant rentalDate, Instant returnedDate, Integer totalCost) {
         this.id = id;
         this.rentalDate = rentalDate;
-        this.returned = returned;
+        this.returnedDate = returnedDate;
+        this.totalCost = totalCost;
     }
 
     public Long getId() {
@@ -35,20 +39,28 @@ public class Rental {
         this.id = id;
     }
 
-    public Date getRentalDate() {
+    public Instant getRentalDate() {
         return rentalDate;
     }
 
-    public void setRentalDate(Date rentalDate) {
+    public void setRentalDate(Instant rentalDate) {
         this.rentalDate = rentalDate;
     }
 
-    public Date getReturned() {
-        return returned;
+    public Instant getReturnedDate() {
+        return returnedDate;
     }
 
-    public void setReturned(Date returned) {
-        this.returned = returned;
+    public void setReturnedDate(Instant returned) {
+        this.returnedDate = returned;
+    }
+
+    public Integer getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(Integer totalCost) {
+        this.totalCost = totalCost;
     }
 
     @Override
@@ -56,7 +68,8 @@ public class Rental {
         return "Rental{" +
                 "id=" + id +
                 ", rentalDate=" + rentalDate +
-                ", returned=" + returned +
+                ", returnedDate=" + returnedDate +
+                ", totalCost=" + totalCost +
                 '}';
     }
 }
