@@ -37,9 +37,8 @@ public class PersonController {
 
     @PostMapping("")
     public ResponseEntity<?> post(@Valid @RequestBody Person person) {
-        service.create(person);
         return new ResponseEntity<>(
-                assembler.toModel(person),
+                assembler.toModel(service.create(person)),
                 HttpStatus.CREATED
         );
     }
@@ -47,15 +46,13 @@ public class PersonController {
     @PutMapping("/{id}")
     public ResponseEntity<?> put(@Valid @RequestBody Person person,
                                  @PathVariable Long id) {
-        service.update(person, id);
         return new ResponseEntity<>(
-                assembler.toModel(person),
+                assembler.toModel(service.update(person, id)),
                 HttpStatus.OK
         );
     }
 
     @DeleteMapping("/{id}")
-    @Validated // ??
     public ResponseEntity<?> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

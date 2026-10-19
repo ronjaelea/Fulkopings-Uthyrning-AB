@@ -36,9 +36,8 @@ public class ProductController {
 
     @PostMapping("")
     public ResponseEntity<?> post(@Valid @RequestBody Product product) {
-        service.create(product);
         return new ResponseEntity<>(
-                assembler.toModel(product),
+                assembler.toModel(service.create(product)),
                 HttpStatus.CREATED
         );
     }
@@ -46,9 +45,8 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<?> put(@Valid @RequestBody Product product,
                                  @PathVariable Long id) {
-        service.update(product, id);
         return new ResponseEntity<>(
-                assembler.toModel(product),
+                assembler.toModel(service.update(product, id)),
                 HttpStatus.OK
         );
     }

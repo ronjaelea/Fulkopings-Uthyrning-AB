@@ -28,16 +28,20 @@ public class PersonService {
         return personRepository.findById(id).get();
     }
 
-    public void create(Person person) {
-        personRepository.save(person);
+    public Person create(Person person) {
+    /*
+         id får inte tas med om det skulle komma med från body
+         då blir existerande rad overwritten
+         fixa helst med DTO
+    */
+        return personRepository.save(person);
     }
 
-    // även om id finns med i body skrivs det över av id från path var
-    public void update(Person person, Long id) {
+    public Person update(Person person, Long id) {
         if (!personExists(id))
             throw new EntityNotFoundException("Person with id " + id + " was not found");
-        person.setId(id);
-        personRepository.save(person);
+        person.setId(id); // även om id finns med i body skrivs det över av id från path var
+        return personRepository.save(person);
     }
 
     public void delete(Long id) {
