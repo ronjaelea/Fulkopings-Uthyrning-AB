@@ -1,6 +1,7 @@
 package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "products")
@@ -8,12 +9,14 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id = 0L;
+    private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String name;
 
     @Column(nullable = false)
+    @NotBlank
     private String category;
 
     @Column(nullable = false)

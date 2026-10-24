@@ -1,10 +1,8 @@
 package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import org.hibernate.validator.constraints.UniqueElements;
 
 @Entity
 @Table(name = "persons")
@@ -12,7 +10,7 @@ public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id = 0L;
+    private Long id;
 
     @Column(nullable = false)
     @NotBlank(message = "First name cannot be blank")
@@ -23,6 +21,7 @@ public class Person {
     private String lastName;
 
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "Email cannot be blank") // för att invalidera även null
     @Pattern(
             regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "Make sure you've entered a correct email address"

@@ -10,7 +10,7 @@ public class Rental {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id = 0L;
+    private Long id;
 
     @Column(nullable = false)
     private Instant rentalDate;
@@ -20,6 +20,14 @@ public class Rental {
 
     @Column
     private Integer totalCost;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "person_id", nullable = false)
+    private Person person;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     public Rental() {
     }
@@ -63,6 +71,22 @@ public class Rental {
         this.totalCost = totalCost;
     }
 
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
     @Override
     public String toString() {
         return "Rental{" +
@@ -70,6 +94,8 @@ public class Rental {
                 ", rentalDate=" + rentalDate +
                 ", returnedDate=" + returnedDate +
                 ", totalCost=" + totalCost +
+                ", person=" + person +
+                ", product=" + product +
                 '}';
     }
 }

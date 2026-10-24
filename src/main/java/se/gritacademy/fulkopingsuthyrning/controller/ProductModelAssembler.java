@@ -29,7 +29,8 @@ public class ProductModelAssembler implements RepresentationModelAssembler<Produ
 
     @Override
     public CollectionModel<EntityModel<Product>> toCollectionModel(Iterable<? extends Product> products) {
-        return RepresentationModelAssembler.super.toCollectionModel(products);
+        return RepresentationModelAssembler.super.toCollectionModel(products)
+                .add(linkTo(methodOn(ProductController.class).list()).withSelfRel());
     }
 
 }
