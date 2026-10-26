@@ -1,0 +1,11 @@
+package se.gritacademy.fulkopingsuthyrning.exception;
+
+/**
+ * kastar i service när id inte finns
+ */
+public class ResourceNotFoundException extends RuntimeException {
+
+    public ResourceNotFoundException(String resource, Long id) {
+        super(resource + " with id " + id + " was not found");
+    }
+}

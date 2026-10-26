@@ -1,9 +1,11 @@
 package se.gritacademy.fulkopingsuthyrning.service;
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import se.gritacademy.fulkopingsuthyrning.controller.dto.RentalRequest;
+import se.gritacademy.fulkopingsuthyrning.controller.dto.RentalResponse;
+import se.gritacademy.fulkopingsuthyrning.exception.ConflictException;
+import se.gritacademy.fulkopingsuthyrning.exception.ResourceNotFoundException;
 import se.gritacademy.fulkopingsuthyrning.model.Person;
 import se.gritacademy.fulkopingsuthyrning.model.Product;
 import se.gritacademy.fulkopingsuthyrning.model.Rental;
@@ -11,14 +13,13 @@ import se.gritacademy.fulkopingsuthyrning.repository.PersonRepository;
 import se.gritacademy.fulkopingsuthyrning.repository.ProductRepository;
 import se.gritacademy.fulkopingsuthyrning.repository.RentalRepository;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
 @Service
 @Transactional
 public class RentalService {
-
-    private static final long MINUTES_PER_DAY = 24 * 60; // för att få antal påbörjade dagar för totalCost
 
     private final RentalRepository rentalRepository;
     private final PersonRepository personRepository;
@@ -30,56 +31,67 @@ public class RentalService {
         this.productRepository = productRepository;
     }
 
-    public List<Rental> listAll() {
-        return rentalRepository.findAll();
+    public List<RentalResponse> listAll() {
+        return rentalRepository.findAll().stream()
+                .map(RentalResponse::from)
+                .toList(); // gör om List<Rental> som returneras från findAll(), till List<RentalResponse>
     }
 
-    public Rental findById(Long id) {
-        if(!rentalExists(id))
-            throw new EntityNotFoundException("Rental with id " + id + " was not found");
-        return rentalRepository.findById(id).get();
+    public RentalResponse findById(Long id) {
+        return RentalResponse.from(rentalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rental", id)));
     }
 
-/*
-    public List<Rental> listByUser(User user) {
-        // find all rentals by one user (full history or only active)
-        // return list
+    public RentalResponse create(RentalRequest request) {
+        Person person = personRepository.findById(request.personId())
+                .orElseThrow(() -> new ResourceNotFoundException("Person", request.personId()));
 
-    }
-*/
+        Product product = productRepository.findById(request.productId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product", request.productId()));
 
-    public Rental newRental(Long personId, Long productId) {
-        Person person = personRepository.findById(personId).get();
-        Product product = productRepository.findById(productId).get();
-        // if person doesn't exist, throw error (404)
-        // else if product doesn't exist, throw error (404)
-        // else if product isn't available, throw error (409)
+        // en Product kan inte hyras ut om den redan finns i en aktiv Rental
+        if (rentalRepository.existsByProductIdAndReturnedDateIsNull(product.getId()))
+            throw new ConflictException("Product with id " + product.getId() + " is already rented out");
 
-        Rental newRental = new Rental();
-        newRental.setRentalDate(Instant.now());
-        newRental.setPerson(person);
-        newRental.setProduct(product);
+        Rental rental = new Rental();
+        rental.setPerson(person);
+        rental.setProduct(product);
+        rental.setRentalDate(Instant.now());
 
-        return rentalRepository.save(newRental);
+        return RentalResponse.from(rentalRepository.save(rental));
     }
 
-    public void returnProduct(Long rentalId) {
+    public RentalResponse returnRental(Long id) {
+        Rental rental = rentalRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Rental", id));
 
-        Product product = rentalRepository.findById(rentalId).get().getProduct();
+        if (rental.getReturnedDate() != null)
+            throw new ConflictException("Rental with id " + id + " has already been returned");
 
+        /*
+         getReturnedDate kan ej användas som argument till kostnadsberäkningen
+         eftersom objektet inte är uppdaterat i db förrän transaktionen är klar.
+         samma Instant som går in i db måste vara det som används för att beräkna kostnad,
+         därför initiera variabeln now först.
+         */
+        Instant now = Instant.now();
+        rental.setReturnedDate(now);
+        rental.setTotalCost(calculateCost(rental.getRentalDate(), now, rental.getProduct().getPricePerDay()));
+
+        return RentalResponse.from(rental);
     }
 
-/*
-    private Integer calculateTotalCost(Instant rentalDate, Instant returnedDate) {
-        // dagar mellan datumen * pricePerDay
-        return totalCost;
+    /**
+     * kostnaden är per påbörjad 24 timmars-period.
+     * Math.max för att få åtminstone 1 påbörjad dag, ceilDiv rundar upp.
+     * 1440 = minuter per dag.
+     * använder toMinutes() ist för toDays() för att de rundar neråt (1d 23h = 1d).
+     * upp till en minut längre än 24h blir nu alltså 1 dag men det får vara acceptabelt
+     */
+    private int calculateCost(Instant rentalDate, Instant returnedDate, int pricePerDay) {
+        long minutes = Duration.between(rentalDate, returnedDate).toMinutes();
+        long days = Math.max(1, Math.ceilDiv(minutes, 1440)); // 1440 = minuter per dag
+
+        return Math.toIntExact(days * pricePerDay);
     }
-*/
-
-    // ska jag ha med delete(Long) och update(Rental) ?
-
-    private boolean rentalExists(Long id) {
-        return rentalRepository.findById(id).isPresent();
-    }
-
 }

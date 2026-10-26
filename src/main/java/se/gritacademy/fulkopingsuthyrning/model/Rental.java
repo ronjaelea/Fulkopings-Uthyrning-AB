@@ -32,11 +32,13 @@ public class Rental {
     public Rental() {
     }
 
-    public Rental(Long id, Instant rentalDate, Instant returnedDate, Integer totalCost) {
+    public Rental(Long id, Instant rentalDate, Instant returnedDate, Integer totalCost, Person person, Product product) {
         this.id = id;
         this.rentalDate = rentalDate;
         this.returnedDate = returnedDate;
         this.totalCost = totalCost;
+        this.person = person;
+        this.product = product;
     }
 
     public Long getId() {
