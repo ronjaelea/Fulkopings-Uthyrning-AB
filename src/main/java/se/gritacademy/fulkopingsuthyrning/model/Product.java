@@ -2,6 +2,8 @@ package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "products")
@@ -12,14 +14,18 @@ public class Product {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank
+    @NotNull(message = "name is required")
+    @NotBlank(message = "name cannot be blank")
     private String name;
 
     @Column(nullable = false)
-    @NotBlank
+    @NotNull(message = "category is required")
+    @NotBlank(message = "category cannot be blank")
     private String category;
 
     @Column(nullable = false)
+    @NotNull
+    @Positive(message = "pricePerDay must be a positive integer")
     private Integer pricePerDay;
 
     public Product() {

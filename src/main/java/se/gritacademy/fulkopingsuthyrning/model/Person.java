@@ -2,6 +2,7 @@ package se.gritacademy.fulkopingsuthyrning.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 @Entity
@@ -13,25 +14,22 @@ public class Person {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank(message = "First name cannot be blank")
+    @NotNull(message = "firstName is required")
+    @NotBlank(message = "firstName cannot be blank")
     private String firstName;
 
     @Column(nullable = false)
-    @NotBlank(message = "Last name cannot be blank")
+    @NotNull(message = "lastName is required")
+    @NotBlank(message = "lastName cannot be blank")
     private String lastName;
 
     @Column(unique = true, nullable = false)
-    @NotBlank(message = "Email cannot be blank") // för att invalidera även null
+    @NotNull(message = "email is required")
     @Pattern(
             regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "Make sure you've entered a correct email address"
     )
     private String email;
-
-/*
-    @Column(nullable = false)
-    private Date created;
-*/
 
     public Person() {
     }

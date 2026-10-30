@@ -3,10 +3,11 @@ package se.gritacademy.fulkopingsuthyrning.controller;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import se.gritacademy.fulkopingsuthyrning.controller.dto.PersonRequest;
 import se.gritacademy.fulkopingsuthyrning.model.Person;
 import se.gritacademy.fulkopingsuthyrning.service.PersonService;
 
@@ -36,26 +37,21 @@ public class PersonController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> post(@Valid @RequestBody Person person) {
-        return new ResponseEntity<>(
-                assembler.toModel(service.create(person)),
-                HttpStatus.CREATED
-        );
+    public ResponseEntity<EntityModel<Person>> post(@Valid @RequestBody PersonRequest request) {
+        EntityModel<Person> model = assembler.toModel(service.create(request));
+
+        return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(model);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> put(@Valid @RequestBody Person person,
-                                 @PathVariable Long id) {
-        return new ResponseEntity<>(
-                assembler.toModel(service.update(person, id)),
-                HttpStatus.OK
-        );
+    public EntityModel<Person> put(@PathVariable Long id,
+                                   @Valid @RequestBody PersonRequest request) {
+        return assembler.toModel(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
-
 }
