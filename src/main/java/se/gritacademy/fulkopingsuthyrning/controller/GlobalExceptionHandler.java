@@ -12,42 +12,37 @@ import se.gritacademy.fulkopingsuthyrning.exception.ConflictException;
 import se.gritacademy.fulkopingsuthyrning.exception.ResourceNotFoundException;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ---------- 404 ----------
+    public record Violation(String field, Object rejectedValue, String message) {
+    }
 
+    /** ----- 404 -----*/
     // hanterar eget, custom exception för 404 när id:t inte finns i tabell
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException e) {
         return problem(
                 HttpStatus.NOT_FOUND,
-                "Resource not found",
+                "Resource Not Found",
                 e.getMessage()
         );
     }
 
-    // ---------- 409 ----------
-
-    // hanterar eget, custom exception för 409 (t.ex produkt redan uthyrd, email redan registrerad)
+     /**----- 409 -----*/
+     // hanterar eget, custom exception för 409 (t.ex produkt redan uthyrd, email redan registrerad)
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException e) {
         return problem(
                 HttpStatus.CONFLICT,
-                "Conflict exception",
+                "Conflict Exception",
                 e.getMessage()
         );
     }
 
-        /**
-         * triggas av validering t.ex. unique, not-null...
-         * e.getMessage() läckte sql-detaljer, skickar en mer allmän string som detail istället –
-         * de mest väntade konflikterna (email ej unik, produkt redan uthyrd)
-         * hanteras ändå av min egen ConflictException som ger lite mer detaljerad feedback
-         * från service
-         */
+    // kastas av validering mot databasen. antagligen överflödig sen jag implementerade ConflictException.
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ProblemDetail handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         return problem(
@@ -57,21 +52,20 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // ---------- 400 ----------
-
-    // triggas om @Valid @RequestBody inte passerar, t.ex matchar ej regex, NotBlank osv
+    /**----- 400 -----*/
+    // kastas om @Valid @RequestBody inte passerar, t.ex matchar ej regex, NotBlank osv
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         var pd = problem(
                 HttpStatus.BAD_REQUEST,
-                "Method argument not valid",
-                "Invalid field(s) in request body"
+                "Method Argument Not Valid",
+                "Missing or invalid field(s) in request body"
         );
-        var errors = e.getBindingResult().getFieldErrors().stream()
-                .map(fe -> Map.of(
-                        "field", fe.getField(),
-                        "rejectedValue", fe.getRejectedValue(),
-                        "message", fe.getDefaultMessage()
+        List<Violation> errors = e.getBindingResult().getFieldErrors().stream()
+                .map(fe -> new Violation(
+                        fe.getField(),
+                        fe.getRejectedValue(),
+                        fe.getDefaultMessage()
                 ))
                 .toList();
         pd.setProperty("errors", errors);
@@ -79,28 +73,7 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    // triggas av JPA/Hibernate, dvs efter att request passerat/validerats i controller
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
-        var pd = problem(
-                HttpStatus.BAD_REQUEST,
-                "Constrain Violation Exception",
-                "Request parameters/path variables are invalid"
-        );
-        var errors = e.getConstraintViolations().stream()
-                .map( cv -> Map.of(
-                        "property", cv.getPropertyPath().toString(),
-                        "invalidValue", cv.getInvalidValue().toString(),
-                        "message", cv.getMessage()
-                ))
-                .toList();
-        pd.setProperty("errors", errors);
-        pd.setProperty("timestamp", OffsetDateTime.now());
-
-        return pd;
-    }
-
-    // triggas om @PathVariable inte är valid (har inga såna checks i nuläget)
+    // kastas om @PathVariable inte är valid (t.ex. @Positive)
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ProblemDetail handleHandlerMethodValidationException(HandlerMethodValidationException e) {
         var pd = problem(
@@ -108,20 +81,39 @@ public class GlobalExceptionHandler {
                 "Method Validation Exception",
                 "Request parameters/path variables are invalid"
         );
-        var errors = e.getParameterValidationResults().stream()
-                .flatMap( r -> r.getResolvableErrors().stream()
-                        .map( err -> Map.of(
-                                "parameter", r.getMethodParameter().getParameterName(),
-                                "invalidValue", String.valueOf(r.getArgument()),
-                                "message", err.getDefaultMessage()
-                        )))
+        List<Violation> errors = e.getParameterValidationResults().stream()
+                .flatMap(r -> r.getResolvableErrors().stream()
+                        .map(error -> new Violation(
+                                r.getMethodParameter().getParameterName(),
+                                r.getArgument(),
+                                error.getDefaultMessage())))
                 .toList();
         pd.setProperty("errors", errors);
 
         return pd;
     }
 
-    // hjälpmetod, gör handlers mer simpla och enhetliga
+    // kastas av JPA/Hibernate, dvs efter att request passerat/validerats i controller
+    // lär sällan bli aktuellt men behåller för säkerhets skull
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
+        var pd = problem(
+                HttpStatus.BAD_REQUEST,
+                "Constraint Violation",
+                "Request parameters/path variables are invalid"
+        );
+        List<Violation> errors = e.getConstraintViolations().stream()
+                .map(cv -> new Violation(
+                        cv.getPropertyPath().toString(),
+                        cv.getInvalidValue(),
+                        cv.getMessage()))
+                .toList();
+        pd.setProperty("errors", errors);
+
+        return pd;
+    }
+
+    /** ----- helpers -----*/
     private ProblemDetail problem(HttpStatus status, String title, String detail) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
         pd.setTitle(title);
