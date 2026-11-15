@@ -15,8 +15,8 @@ import se.gritacademy.fulkopingsuthyrning.service.PersonService;
 @RequestMapping("/api/persons")
 public class PersonController {
 
-    private PersonService service;
-    private PersonModelAssembler assembler;
+    private final PersonService service;
+    private final PersonModelAssembler assembler;
 
     public PersonController(PersonService service, PersonModelAssembler assembler) {
         this.service = service;

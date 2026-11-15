@@ -15,8 +15,8 @@ import se.gritacademy.fulkopingsuthyrning.service.ProductService;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private ProductService service;
-    private ProductModelAssembler assembler;
+    private final ProductService service;
+    private final ProductModelAssembler assembler;
 
     public ProductController(ProductService service, ProductModelAssembler assembler) {
         this.service = service;
