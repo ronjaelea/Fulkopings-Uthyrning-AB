@@ -68,27 +68,24 @@ public class RentalService {
         if (rental.getReturnedDate() != null)
             throw new ConflictException("Rental with id " + id + " has already been returned");
 
-        /*
-         getReturnedDate kan ej användas som argument till kostnadsberäkningen
-         eftersom objektet inte är uppdaterat i db förrän transaktionen är klar.
-         samma Instant som går in i db måste vara det som används för att beräkna kostnad,
-         därför initiera variabeln now först.
-         */
-        Instant now = Instant.now();
-        rental.setReturnedDate(now);
-        rental.setTotalCost(calculateCost(rental.getRentalDate(), now, rental.getProduct().getPricePerDay()));
+        rental.setReturnedDate(Instant.now());
+        rental.setTotalCost(calculateTotalCost(
+                rental.getRentalDate(),
+                rental.getReturnedDate(),
+                rental.getProduct().getPricePerDay())
+        );
 
         return RentalResponse.from(rental);
     }
 
     /**
-     * kostnaden är per påbörjad 24 timmars-period.
-     * Math.max för att få åtminstone 1 påbörjad dag, ceilDiv rundar upp.
-     * 1440 = minuter per dag.
-     * använder toMinutes() ist för toDays() för att de rundar neråt (1d 23h = 1d).
-     * upp till en minut längre än 24h blir nu alltså 1 dag men det får vara acceptabelt
+     * kostnaden är per påbörjad 24 timmars-period<br>
+     * Math.max(1, …) för att få åtminstone 1 påbörjad dag<br>
+     * 1440 = minuter per dag<br>
+     * använder toMinutes() ist för toDays() för att de rundar neråt (23h skulle bli 0d)<br>
+     * upp till en minut längre än 24h blir nu alltså 1 dag men det får vara acceptabelt i sammanhanget
      */
-    private int calculateCost(Instant rentalDate, Instant returnedDate, int pricePerDay) {
+    private int calculateTotalCost(Instant rentalDate, Instant returnedDate, int pricePerDay) {
         long minutes = Duration.between(rentalDate, returnedDate).toMinutes();
         long days = Math.max(1, Math.ceilDiv(minutes, 1440)); // 1440 = minuter per dag
 
