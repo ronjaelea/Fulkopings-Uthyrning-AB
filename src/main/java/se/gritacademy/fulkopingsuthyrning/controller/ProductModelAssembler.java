@@ -4,7 +4,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import se.gritacademy.fulkopingsuthyrning.model.Person;
 import se.gritacademy.fulkopingsuthyrning.model.Product;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -32,5 +31,4 @@ public class ProductModelAssembler implements RepresentationModelAssembler<Produ
         return RepresentationModelAssembler.super.toCollectionModel(products)
                 .add(linkTo(methodOn(ProductController.class).list()).withSelfRel());
     }
-
 }

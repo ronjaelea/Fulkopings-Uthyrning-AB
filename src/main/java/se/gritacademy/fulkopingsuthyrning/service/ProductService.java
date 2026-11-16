@@ -1,6 +1,5 @@
 package se.gritacademy.fulkopingsuthyrning.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import se.gritacademy.fulkopingsuthyrning.controller.dto.ProductRequest;
@@ -53,7 +52,6 @@ public class ProductService {
         product.setPricePerDay(request.pricePerDay());
 
         return product;
-
     }
 
     public void delete(Long id) {

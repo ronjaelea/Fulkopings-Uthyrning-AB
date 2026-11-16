@@ -7,13 +7,14 @@ import java.util.List;
 
 public interface RentalRepository extends JpaRepository<Rental, Long> {
 
-    // true om produkten redan är uthyrd (finns i rentals med returnedDate null)
-    // används för att neka dubbeluthyrning samt update av uthyrd produkt
+    /**
+     * true om produkten redan är uthyrd (finns i rentals med returnedDate null)<br>
+     * används för att neka dubbeluthyrning samt update av uthyrd produkt
+     */
     boolean existsByProductIdAndReturnedDateIsNull(Long productId);
 
     /**
-     * används i PersonModelAssembler
-     * (inte jättebra att injecta repository direkt där)
+     * används i PersonModelAssembler för att länka till en persons aktiva rentals
      */
     List<Rental> findByPersonIdAndReturnedDateIsNull(Long personId);
 

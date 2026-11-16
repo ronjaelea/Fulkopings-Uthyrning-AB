@@ -1,7 +1,6 @@
 package se.gritacademy.fulkopingsuthyrning.controller.dto;
 
 import se.gritacademy.fulkopingsuthyrning.model.Rental;
-
 import java.time.Instant;
 
 /** <h6>response DTO för att:</h6>

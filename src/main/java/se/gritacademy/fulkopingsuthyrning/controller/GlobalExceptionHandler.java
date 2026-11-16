@@ -17,6 +17,11 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Map.of() som jag först använde för att skapa maps i handlers kastade NullPointerException
+     * om ett rejectedValue var null, dvs ett exception inuti en metod som skulle hantera ett helt annat exception...
+     * använder istället ett record för att undvika det
+     */
     public record Violation(String field, Object rejectedValue, String message) {
     }
 

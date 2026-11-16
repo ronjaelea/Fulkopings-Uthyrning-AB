@@ -35,10 +35,7 @@ public class RentalController {
     @PostMapping("")
     public ResponseEntity<EntityModel<RentalResponse>> create(@Valid @RequestBody RentalRequest request) {
         EntityModel<RentalResponse> model = assembler.toModel(service.create(request));
-        return ResponseEntity
-                // .created() för statuskod & location header (bör finnas med vid 201)
-                .created(model.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(model);
+        return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(model);
     }
 
     @PostMapping("/{id}/return")

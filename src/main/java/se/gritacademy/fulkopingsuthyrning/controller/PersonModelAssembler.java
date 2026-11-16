@@ -16,8 +16,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class PersonModelAssembler implements RepresentationModelAssembler<Person, EntityModel<Person>> {
 
-    // borde inte ta in något repository här men ville testa
-    // för att få in länkar till aktiva lån
+    /**
+     * osäker på om det är lämpligt att injicera repository här,
+     * men ville testa för att få in länkar till aktiva lån
+     */
     private final RentalRepository rentalRepository;
 
     public PersonModelAssembler(RentalRepository rentalRepository) {
